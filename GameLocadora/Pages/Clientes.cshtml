@@ -1,0 +1,27 @@
+﻿@page
+@model GameLocadora.Pages.ClientesModel
+@{
+    ViewData["Title"] = "Novo Cliente";
+}
+
+<h2>Novo Cliente</h2>
+
+<form method="post">
+    <div asp-validation-sumary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="OCliente.Nome" class="form-label"></label>
+        <input asp-for="OCliente.Nome" class="form-control" />
+        <span asp-validation-for="OCliente.Nome" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="OCliente.Email" class="form-label"></label>
+        <input asp-for="OCliente.Email" class="form-control" />
+        <span asp-validation-for="OCliente.Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="OCliente.Telefone" class="form-label"></label>
+        <input asp-for="OCliente.Telefone" class="form-control" />
+        <span asp-validation-for="OCliente.Telefone" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>

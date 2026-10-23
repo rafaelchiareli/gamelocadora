@@ -1,7 +1,12 @@
+using GameLocadora.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<LocadoraContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("Locadora")));
 
 var app = builder.Build();
 
