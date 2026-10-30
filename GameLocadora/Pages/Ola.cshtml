@@ -1,0 +1,8 @@
+﻿@page
+@model GameLocadora.Pages.OlaModel
+@{
+    ViewData["Title"] = "Olá";
+}
+<h1>@Model.Mensagem</h1>
+<p>Hora do Servidor: @Model.Hora.ToString("HH:mm:ss")</p>
+<p class="text-muted">Experimente <code>/Ola?nome=Ana</code></p>

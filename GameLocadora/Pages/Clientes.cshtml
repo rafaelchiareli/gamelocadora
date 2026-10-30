@@ -3,8 +3,17 @@
 @{
     ViewData["Title"] = "Novo Cliente";
 }
+@{
+    if (TempData["Mensagem"] != null)
+    {
+        <div class="text-info">
+        @TempData["Mensagem"]
+        </div>
+    }
+}
 
 <h2>Novo Cliente</h2>
+
 
 <form method="post">
     <div asp-validation-sumary="ModelOnly" class="text-danger"></div>
@@ -25,3 +34,40 @@
     </div>
     <button type="submit" class="btn btn-primary">Salvar</button>
 </form>
+
+ <table class="table table-stripped" id="tabela">
+     <thead>
+         <tr>
+             <th>Nome</th>
+             <th>Telefone</th>
+             <th>Email</th>             
+         </tr>
+     </thead>
+        <tbody>
+        @foreach(var item in Model.ListaCllientes)
+        {
+            <tr>
+                <td>@item.Nome</td>
+                <td>@item.Telefone</td>
+                <td>@item.Email</td>
+            </tr>
+        }
+        </tbody>
+ </table>
+ @section Scripts{
+     <script>
+         const mensagem = "@TempData["Mensagem"]";
+         console.log('mensagem', mensagem)
+
+         if (mensagem != ""){
+             Swal.fire({
+                title: "Mensagem",
+                text: mensagem,
+             icon: "success"
+                    });
+         }
+
+         $("#tabela").DataTable();
+     </script>
+
+ }
