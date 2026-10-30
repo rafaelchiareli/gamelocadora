@@ -1,0 +1,105 @@
+@page
+@using System.Globalization
+@model GameLocadora.Pages.JogosModel
+@{
+    ViewData["Title"] = "Novo Jogo";
+    var ptBr = new CultureInfo("pt-BR");
+}
+
+<h2>Novo Jogo</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Titulo" class="form-label"></label>
+        <input asp-for="Titulo" class="form-control" />
+        <span asp-validation-for="Titulo" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Plataforma" class="form-label"></label>
+        <input asp-for="Plataforma" class="form-control" placeholder="Ex.: PlayStation 5, Xbox, Nintendo Switch" />
+        <span asp-validation-for="Plataforma" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Genero" class="form-label"></label>
+        <input asp-for="Genero" class="form-control" placeholder="Ex.: Aventura, Corrida, Ação" />
+        <span asp-validation-for="Genero" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ValorDiaria" class="form-label"></label>
+        <input asp-for="ValorDiaria" class="form-control" type="number" step="0.01" min="0.01" max="1000" />
+        <span asp-validation-for="ValorDiaria" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Capa" class="form-label"></label>
+        <input asp-for="Capa" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+        <div class="form-text">JPG, PNG ou WEBP, até 2 MB. Opcional.</div>
+        <span asp-validation-for="Capa" class="text-danger"></span>
+        <img id="previewCapa" class="img-thumbnail mt-2 d-none" style="max-height: 160px;" alt="Pré-visualização da capa" />
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+
+<hr />
+
+<table class="table table-striped" id="tabela">
+    <thead>
+        <tr>
+            <th>Capa</th>
+            <th>Título</th>
+            <th>Plataforma</th>
+            <th>Gênero</th>
+            <th>Diária</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ListaJogos)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.CapaArquivo))
+                    {
+                        <img src="~/capas/@item.CapaArquivo" alt="Capa de @item.Titulo" class="img-thumbnail" style="height: 70px;" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Sem capa</span>
+                    }
+                </td>
+                <td>@item.Titulo</td>
+                <td>@item.Plataforma</td>
+                <td>@item.Genero</td>
+                <td>@((item.ValorDiariaCentavos / 100m).ToString("C", ptBr))</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const mensagem = "@TempData["Mensagem"]";
+
+        if (mensagem != "") {
+            Swal.fire({
+                title: "Mensagem",
+                text: mensagem,
+                icon: "success"
+            });
+        }
+
+        $("#tabela").DataTable();
+
+        // Pré-visualização da capa escolhida
+        $("#Capa").on("change", function () {
+            const arquivo = this.files[0];
+            const preview = $("#previewCapa");
+
+            if (arquivo && arquivo.type.startsWith("image/")) {
+                preview.attr("src", URL.createObjectURL(arquivo)).removeClass("d-none");
+            } else {
+                preview.addClass("d-none").removeAttr("src");
+            }
+        });
+    </script>
+}
