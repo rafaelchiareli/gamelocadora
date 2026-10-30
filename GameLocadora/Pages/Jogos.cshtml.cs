@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using GameLocadora.Data;
 using GameLocadora.Models;
 using GameLocadora.Repositorios;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +15,9 @@ namespace GameLocadora.Pages
         private readonly IJogoRepositorio _jogos;
         private readonly IWebHostEnvironment _env;
 
-        public JogosModel(IJogoRepositorio jogos, IWebHostEnvironment env)
+        public JogosModel(LocadoraContext db, IWebHostEnvironment env)
         {
-            _jogos = jogos;
+            _jogos = new JogoRepositorio(db);
             _env = env;
         }
 

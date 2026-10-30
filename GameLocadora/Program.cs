@@ -1,5 +1,4 @@
 using GameLocadora.Data;
-using GameLocadora.Repositorios;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,10 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<LocadoraContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Locadora")));
-
-builder.Services.AddScoped<IClienteRepositorio, ClienteRepositorio>();
-builder.Services.AddScoped<IJogoRepositorio, JogoRepositorio>();
-builder.Services.AddScoped<ILocacaoRepositorio, LocacaoRepositorio>();
 
 var app = builder.Build();
 
