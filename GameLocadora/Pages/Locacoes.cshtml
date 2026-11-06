@@ -1,0 +1,155 @@
+@page
+@model GameLocadora.Pages.LocacoesModel
+@{
+    ViewData["Title"] = "Nova Locação";
+}
+
+<h2>Nova Locação</h2>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="ClienteId" class="form-label"></label>
+        <select asp-for="ClienteId" asp-items="Model.Clientes" class="form-select">
+            <option value="">Selecione o cliente...</option>
+        </select>
+        <span asp-validation-for="ClienteId" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="JogoId" class="form-label"></label>
+        <select asp-for="JogoId" class="form-select">
+            <option value="">Carregando jogos...</option>
+        </select>
+        <span asp-validation-for="JogoId" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Dias" class="form-label"></label>
+        <input asp-for="Dias" class="form-control" type="number" min="1" max="30" />
+        <span asp-validation-for="Dias" class="text-danger"></span>
+    </div>
+    <p class="fw-bold">Total estimado: <span id="totalEstimado">R$ 0,00</span></p>
+    <button type="submit" class="btn btn-primary">Registrar locação</button>
+</form>
+
+<hr />
+
+<table class="table table-striped" id="tabela">
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Jogo</th>
+            <th>Locação</th>
+            <th>Devolução prevista</th>
+            <th>Devolução</th>
+            <th>Diária</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ListaLocacoes)
+        {
+            <tr>
+                <td>@item.Cliente.Nome</td>
+                <td>@item.Jogo.Titulo</td>
+                <td>@item.DataLocacao.ToString("dd/MM/yyyy")</td>
+                <td>@item.DataPrevistaDevolucao.ToString("dd/MM/yyyy")</td>
+                <td>
+                    @if (item.DataDevolucao.HasValue)
+                    {
+                        <span>@item.DataDevolucao.Value.ToString("dd/MM/yyyy")</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Em aberto</span>
+                    }
+                </td>
+                <td>@((item.ValorDiariaCentavos / 100m).ToString("C", new System.Globalization.CultureInfo("pt-BR")))</td>
+                <td>
+                    @if (item.ValorTotalCentavos.HasValue)
+                    {
+                        <span>@((item.ValorTotalCentavos.Value / 100m).ToString("C", new System.Globalization.CultureInfo("pt-BR")))</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">-</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const mensagem = "@TempData["Mensagem"]";
+
+        if (mensagem != "") {
+            Swal.fire({
+                title: "Mensagem",
+                text: mensagem,
+                icon: "success"
+            });
+        }
+
+        $("#tabela").DataTable();
+
+        const comboJogo = document.getElementById("JogoId");
+        const campoDias = document.getElementById("Dias");
+        const totalEstimado = document.getElementById("totalEstimado");
+
+        // Jogo que estava escolhido se a página voltou com erro de validação.
+        const jogoSelecionado = "@Model.JogoId";
+
+        // Guarda os jogos que chegaram do JSON para calcular o total sem ir ao servidor.
+        let jogos = [];
+
+        function moeda(centavos) {
+            return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        }
+
+        function atualizarTotal() {
+            const jogo = jogos.find(j => j.id == comboJogo.value);
+            const dias = parseInt(campoDias.value);
+
+            if (jogo && dias > 0) {
+                totalEstimado.textContent = moeda(jogo.valorDiariaCentavos * dias);
+            } else {
+                totalEstimado.textContent = moeda(0);
+            }
+        }
+
+        // Carrega a combo de jogos por JSON: GET /Locacoes?handler=Jogos
+        fetch("@Url.Page("/Locacoes", "Jogos")")
+            .then(resposta => resposta.json())
+            .then(lista => {
+                jogos = lista;
+                comboJogo.innerHTML = "";
+
+                const opcaoVazia = document.createElement("option");
+                opcaoVazia.value = "";
+                opcaoVazia.textContent = lista.length > 0
+                    ? "Selecione o jogo..."
+                    : "Nenhum jogo disponível";
+                comboJogo.appendChild(opcaoVazia);
+
+                lista.forEach(jogo => {
+                    const opcao = document.createElement("option");
+                    opcao.value = jogo.id;
+                    opcao.textContent = `${jogo.titulo} (${jogo.plataforma}) - ${moeda(jogo.valorDiariaCentavos)}/dia`;
+                    comboJogo.appendChild(opcao);
+                });
+
+                if (jogoSelecionado) {
+                    comboJogo.value = jogoSelecionado;
+                }
+                atualizarTotal();
+            })
+            .catch(() => {
+                comboJogo.innerHTML = "<option value=''>Erro ao carregar os jogos</option>";
+            });
+
+        comboJogo.addEventListener("change", atualizarTotal);
+        campoDias.addEventListener("input", atualizarTotal);
+    </script>
+}
