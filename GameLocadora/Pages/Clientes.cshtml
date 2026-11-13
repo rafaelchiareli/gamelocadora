@@ -40,7 +40,8 @@
          <tr>
              <th>Nome</th>
              <th>Telefone</th>
-             <th>Email</th>             
+             <th>Email</th>
+             <th></th>             
          </tr>
      </thead>
         <tbody>
@@ -50,6 +51,7 @@
                 <td>@item.Nome</td>
                 <td>@item.Telefone</td>
                 <td>@item.Email</td>
+                <td><a asp-page="/Perfil" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Ver perfil</a></td>
             </tr>
         }
         </tbody>

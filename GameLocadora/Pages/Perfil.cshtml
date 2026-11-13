@@ -1,0 +1,129 @@
+@page "{id:int}"
+@model GameLocadora.Pages.PerfilModel
+@{
+    ViewData["Title"] = "Perfil de " + Model.OCliente.Nome;
+}
+
+<div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+         style="width: 72px; height: 72px; font-size: 2rem;">
+        @(string.IsNullOrEmpty(Model.OCliente.Nome) ? "?" : Model.OCliente.Nome.Substring(0, 1).ToUpper())
+    </div>
+    <div>
+        <h2 class="mb-1">@Model.OCliente.Nome</h2>
+        @if (Model.OCliente.Ativo)
+        {
+            <span class="badge bg-success">Ativo</span>
+        }
+        else
+        {
+            <span class="badge bg-secondary">Inativo</span>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-2">E-mail</dt>
+            <dd class="col-sm-10">@Model.OCliente.Email</dd>
+            <dt class="col-sm-2">Telefone</dt>
+            <dd class="col-sm-10 mb-0">@Model.OCliente.Telefone</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="fs-3 fw-bold">@Model.TotalLocacoes</div>
+                <div class="text-muted">Locações</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="fs-3 fw-bold">@Model.EmAberto</div>
+                <div class="text-muted">Em aberto</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="fs-3 fw-bold @(Model.Atrasadas > 0 ? "text-danger" : "")">@Model.Atrasadas</div>
+                <div class="text-muted">Atrasadas</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="fs-3 fw-bold">@PerfilModel.Moeda(Model.TotalGastoCentavos)</div>
+                <div class="text-muted">Total gasto</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Locações</h3>
+
+@if (Model.ListaLocacoes.Count == 0)
+{
+    <p class="text-muted">Este cliente ainda não fez nenhuma locação.</p>
+}
+else
+{
+    <table class="table table-striped" id="tabela">
+        <thead>
+            <tr>
+                <th>Capa</th>
+                <th>Jogo</th>
+                <th>Locação</th>
+                <th>Devolução prevista</th>
+                <th>Devolução</th>
+                <th>Diária</th>
+                <th>Total</th>
+                <th>Situação</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ListaLocacoes)
+            {
+                <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Jogo.CapaArquivo))
+                        {
+                            <img src="~/capas/@item.Jogo.CapaArquivo" width="50" height="50" alt="capa de @item.Jogo.Titulo" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sem capa</span>
+                        }
+                    </td>
+                    <td>
+                        @item.Jogo.Titulo
+                        <div class="text-muted small">@item.Jogo.Plataforma</div>
+                    </td>
+                    <td>@item.DataLocacao.ToString("dd/MM/yyyy")</td>
+                    <td>@item.DataPrevistaDevolucao.ToString("dd/MM/yyyy")</td>
+                    <td>@(item.DataDevolucao.HasValue ? item.DataDevolucao.Value.ToString("dd/MM/yyyy") : "-")</td>
+                    <td>@PerfilModel.Moeda(item.ValorDiariaCentavos)</td>
+                    <td>@(item.ValorTotalCentavos.HasValue ? PerfilModel.Moeda(item.ValorTotalCentavos.Value) : "-")</td>
+                    <td><span class="badge @PerfilModel.ClasseSituacao(item)">@PerfilModel.Situacao(item)</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-page="/Clientes" class="btn btn-secondary">Voltar para clientes</a>
+
+@section Scripts {
+    <script>
+        // order: [] mantém a ordem do servidor (mais recentes primeiro).
+        $("#tabela").DataTable({ order: [] });
+    </script>
+}

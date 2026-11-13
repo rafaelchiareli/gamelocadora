@@ -9,6 +9,8 @@ public interface ILocacaoRepositorio : IRepositorio<Locacao>
     List<Locacao> ObterTodosComDetalhes();
 
     bool JogoEstaLocado(int jogoId);
+
+    List<Locacao> ObterPorCliente(int clienteId);
 }
 
 public class LocacaoRepositorio : Repositorio<Locacao>, ILocacaoRepositorio
@@ -23,6 +25,16 @@ public class LocacaoRepositorio : Repositorio<Locacao>, ILocacaoRepositorio
         return _db.Locacaos
             .Include(l => l.Cliente)
             .Include(l => l.Jogo)
+            .OrderByDescending(l => l.DataLocacao)
+            .ToList();
+    }
+
+    // Todas as locações de um cliente, da mais recente para a mais antiga, já com o Jogo.
+    public List<Locacao> ObterPorCliente(int clienteId)
+    {
+        return _db.Locacaos
+            .Include(l => l.Jogo)
+            .Where(l => l.ClienteId == clienteId)
             .OrderByDescending(l => l.DataLocacao)
             .ToList();
     }

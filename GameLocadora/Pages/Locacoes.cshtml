@@ -49,7 +49,7 @@
         @foreach (var item in Model.ListaLocacoes)
         {
             <tr>
-                <td>@item.Cliente.Nome</td>
+                <td><a asp-page="/Perfil" asp-route-id="@item.ClienteId">@item.Cliente.Nome</a></td>
                 <td>@item.Jogo.Titulo</td>
                 <td>@item.DataLocacao.ToString("dd/MM/yyyy")</td>
                 <td>@item.DataPrevistaDevolucao.ToString("dd/MM/yyyy")</td>
